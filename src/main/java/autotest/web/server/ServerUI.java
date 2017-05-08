@@ -22,6 +22,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 import org.openqa.grid.common.GridRole;
 import org.openqa.grid.selenium.GridLauncherV3;
@@ -67,6 +70,7 @@ public class ServerUI extends JFrame
 		centerPanel = initCenter();
 		this.add(centerPanel, BorderLayout.CENTER);
 		
+		setTitle("PhoenixSeleniumServer");
 		setSize(600, 400);
 		setVisible(true);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -140,7 +144,7 @@ public class ServerUI extends JFrame
 		
 		//role list
 		JPanel serverPanel = new JPanel();
-		panel.add(serverPanel, BorderLayout.CENTER);
+		panel.add(serverPanel, BorderLayout.NORTH);
 		final JComboBox<GridRole> gridRoleBox = new JComboBox<GridRole>();
 		for(GridRole gridRole : GridRole.values())
 		{
@@ -200,6 +204,41 @@ public class ServerUI extends JFrame
 		});
 		serverPanel.add(startBut);
 		
+		JPanel serverInfo = new JPanel();
+		panel.add(serverInfo, BorderLayout.CENTER);
+		putNetworkInfo(serverInfo);
+		
 		return panel;
+	}
+
+	/**
+	 * 网络信息面板
+	 * @param serverInfo
+	 */
+	private void putNetworkInfo(JPanel serverInfo)
+	{
+		serverInfo.setLayout(new GridLayout(0, 2, 4, 0));
+		Map<String, String> allIP = NetUtil.allIP();
+		for(String name : allIP.keySet())
+		{
+			serverInfo.add(new JLabel(name));
+			
+			JTextField ipField = new JTextField(allIP.get(name));
+			ipField.setEditable(false);
+			ipField.addMouseListener(new MouseAdapter()
+			{
+
+				@Override
+				public void mouseClicked(MouseEvent e)
+				{
+					Object source = e.getSource();
+					if(source instanceof JTextField)
+					{
+						((JTextField) source).selectAll();
+					}
+				}
+			});
+			serverInfo.add(ipField);
+		}
 	}
 }

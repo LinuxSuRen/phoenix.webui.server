@@ -18,7 +18,9 @@ package autotest.web.server;
 
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
@@ -30,6 +32,8 @@ public class NetUtilTest
 	@Test
 	public void list() throws SocketException, UnknownHostException
 	{
-		NetUtil.list();
+		Map<String, String> allIP = NetUtil.allIP();
+		
+		Assert.assertNotNull(allIP);
 	}
 }

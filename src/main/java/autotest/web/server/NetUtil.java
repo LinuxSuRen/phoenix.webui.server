@@ -16,35 +16,54 @@
 
 package autotest.web.server;
 
-import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
-
-import org.apache.http.conn.util.InetAddressUtils;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
+ * 网络相关的工具类
  * @author suren
  * @date 2017年5月7日 下午4:33:43
  */
 public class NetUtil
 {
-	public static void list() throws SocketException, UnknownHostException
-	{
-		Enumeration<NetworkInterface> inters = NetworkInterface.getNetworkInterfaces();
-		while(inters.hasMoreElements())
-		{
-			NetworkInterface inter = inters.nextElement();
-			if(inter.isLoopback() || inter.isVirtual() || inter.isPointToPoint())
-			{
-				continue;
-			}
-			
-			System.out.println(inter);
-		}
-		
-		System.out.println(InetAddress.getLocalHost().getHostAddress());
-	}
+    /**
+     * @return 所有的对外ip，没有的话返回空集合
+     */
+    public static Map<String, String> allIP()
+    {
+    	Map<String, String> allIP = new HashMap<String, String>();
+        try
+        {
+            Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
+            while (netInterfaces.hasMoreElements())
+            {
+                NetworkInterface netInter = (NetworkInterface) netInterfaces.nextElement();
+                
+                List<InterfaceAddress> address = netInter.getInterfaceAddresses();
+                for(InterfaceAddress interAddr : address)
+                {
+                	InetAddress addr = interAddr.getAddress();
+                	if(addr.isLoopbackAddress() || addr.isLinkLocalAddress() || addr instanceof Inet6Address)
+                	{
+                		continue;
+                	}
+                	
+                	allIP.put(netInter.getDisplayName(), addr.getHostAddress());
+                }
+            }
+        }
+        catch (SocketException e)
+        {
+            e.printStackTrace();
+        }
+    
+        return allIP;
+    }
 }
