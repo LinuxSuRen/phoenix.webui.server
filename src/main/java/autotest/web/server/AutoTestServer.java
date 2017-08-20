@@ -16,9 +16,11 @@
 
 package autotest.web.server;
 
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.JCommander.Builder;
+
 /**
- * @author suren
- * @date 2017年5月6日 下午10:05:04
+ * @author <a href="http://surenpi.com">suren</a>
  */
 public class AutoTestServer
 {
@@ -28,7 +30,22 @@ public class AutoTestServer
 	 */
 	public static void main(String[] args)
 	{
-		new ServerUI();
+	    ServerParam serverParam = new ServerParam();
+	    Builder builder = JCommander.newBuilder();
+	    JCommander commander = builder.addObject(serverParam).build();
+	 
+	    if(args != null)
+	    {
+	        commander.parse(args);
+	    }
+	    
+	    if(serverParam.help)
+	    {
+	        commander.usage();
+	        System.exit(0);
+	    }
+	    
+		new ServerUI(serverParam);
 	}
 
 }

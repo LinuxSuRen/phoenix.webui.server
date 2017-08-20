@@ -16,11 +16,19 @@
 
 package autotest.web.server;
 
-/**
- * @author suren
- * @date 2017年5月6日 下午10:05:28
- */
-public class AutoTestParam
-{
+import com.beust.jcommander.Parameter;
 
+/**
+ * @author <a href="http://surenpi.com">suren</a>
+ */
+public class ServerParam
+{
+    @Parameter(names = "-start")
+    public boolean autoStart;
+    
+    @Parameter(names = "-chrome")
+    public String chrome;
+    
+    @Parameter(names = "-help")
+    public boolean help;
 }

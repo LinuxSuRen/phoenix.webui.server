@@ -1,10 +1,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<parent>
 		<groupId>com.surenpi.autotest</groupId>
 		<artifactId>autotest.parent</artifactId>
-		<version>1.0.0-20170504</version>
+		<version>1.0.1-20170815-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>autotest.web.server</artifactId>
@@ -76,16 +77,24 @@
 			<artifactId>selenium-server</artifactId>
 			<version>3.3.1</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-support</artifactId>
-			<version>3.3.1</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>com.surenpi.autotest</groupId>
 			<artifactId>autotest.webdriver.downloader</artifactId>
-			<version>1.0.2-20170422</version>
+		</dependency>
+        <dependency>
+			<groupId>com.surenpi.autotest</groupId>
+        	<artifactId>autotest.utils</artifactId>
+        </dependency>
+		
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
 		</dependency>
 	</dependencies>
 </project>

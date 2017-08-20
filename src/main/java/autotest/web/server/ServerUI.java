@@ -45,6 +45,8 @@ import org.suren.autotest.webdriver.downloader.DriverDownloader;
 import org.suren.autotest.webdriver.downloader.DriverInfo;
 import org.suren.autotest.webdriver.downloader.DriverMapping;
 
+import com.surenpi.autotest.utils.StringUtils;
+
 /**
  * 服务配置主界面
  * @author suren
@@ -62,13 +64,29 @@ public class ServerUI extends JFrame
 	private DriverMapping driverMapping = new DriverMapping();
 	private Map<String, DriverInfo> driverInfoMap = new HashMap<String, DriverInfo>();
 	
-	public ServerUI()
+	private Map<String, JCheckBox> browserCheckMap = new HashMap<String, JCheckBox>();
+	private Map<String, JComboBox<String>> browserVerMap = new HashMap<String, JComboBox<String>>();
+	private JButton startBut;
+	
+	public ServerUI(ServerParam serverParam)
 	{
 		driverMapping.init();
 		
 		setLayout(new BorderLayout());
 		centerPanel = initCenter();
 		this.add(centerPanel, BorderLayout.CENTER);
+		
+		if(StringUtils.isNotBlank(serverParam.chrome))
+		{
+		    browserCheckMap.get("chrome").setSelected(true);
+		    
+		    browserVerMap.get("chrome").setSelectedItem(serverParam.chrome);
+		}
+		
+		if(serverParam.autoStart)
+		{
+		    startBut.doClick();
+		}
 		
 		setTitle("PhoenixSeleniumServer");
 		setSize(600, 400);
@@ -98,6 +116,7 @@ public class ServerUI extends JFrame
 		for(String type : supportBrowser.keySet())
 		{
 			JCheckBox typeCheckBox = new JCheckBox(type);
+			browserCheckMap.put(type, typeCheckBox);
 			browserListPanel.add(typeCheckBox);
 			driverInfoMap.put(type, new DriverInfo(type));
 			typeCheckBox.addItemListener(new ItemListener()
@@ -120,6 +139,7 @@ public class ServerUI extends JFrame
 
 			JComboBox<String> verCombox = new JComboBox<String>();
 			verCombox.addItem(null);
+			browserVerMap.put(type, verCombox);
 			Set<String> verList = supportBrowser.get(type);
 			for(String ver : verList)
 			{
@@ -152,7 +172,7 @@ public class ServerUI extends JFrame
 		}
 		serverPanel.add(gridRoleBox);
 		
-		JButton startBut = new JButton("Start");
+		startBut = new JButton("Start");
 		startBut.addActionListener(new ActionListener()
 		{
 			
