@@ -24,9 +24,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,12 +39,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import org.openqa.grid.common.GridRole;
-import org.openqa.grid.selenium.GridLauncherV3;
-import org.suren.autotest.webdriver.downloader.DriverDownloader;
+import org.suren.autotest.webdriver.downloader.Browser;
+import org.suren.autotest.webdriver.downloader.BrowserVersionUtils;
 import org.suren.autotest.webdriver.downloader.DriverInfo;
-import org.suren.autotest.webdriver.downloader.DriverMapping;
 
 import com.surenpi.autotest.utils.StringUtils;
+import com.surenpi.swing.SuRenComboBox;
 
 /**
  * 服务配置主界面
@@ -61,7 +60,6 @@ public class ServerUI extends JFrame
 	private JPanel centerPanel;
 	private JLabel loggerLabel;
 	
-	private DriverMapping driverMapping = new DriverMapping();
 	private Map<String, DriverInfo> driverInfoMap = new HashMap<String, DriverInfo>();
 	
 	private Map<String, JCheckBox> browserCheckMap = new HashMap<String, JCheckBox>();
@@ -69,9 +67,7 @@ public class ServerUI extends JFrame
 	private JButton startBut;
 	
 	public ServerUI(ServerParam serverParam)
-	{
-		driverMapping.init();
-		
+	{		
 		setLayout(new BorderLayout());
 		centerPanel = initCenter();
 		this.add(centerPanel, BorderLayout.CENTER);
@@ -112,9 +108,12 @@ public class ServerUI extends JFrame
 		JPanel browserListPanel = new JPanel();
 		panel.add(browserListPanel, BorderLayout.WEST);
 		browserListPanel.setLayout(new GridLayout(0, 2));
-		Map<String, Set<String>> supportBrowser = driverMapping.supportBrowser();
-		for(String type : supportBrowser.keySet())
+		Map<String, Set<String>> supportBrowser = AutoTestServer.driverMapping.supportBrowser();
+		List<Browser> browserList = AutoTestServer.driverMapping.browserList();
+		for(Browser browser : browserList)
 		{
+		    String type = browser.getName();
+		    
 			JCheckBox typeCheckBox = new JCheckBox(type);
 			browserCheckMap.put(type, typeCheckBox);
 			browserListPanel.add(typeCheckBox);
@@ -137,7 +136,7 @@ public class ServerUI extends JFrame
 				}
 			});
 
-			JComboBox<String> verCombox = new JComboBox<String>();
+			SuRenComboBox<String> verCombox = new SuRenComboBox<String>();
 			verCombox.addItem(null);
 			browserVerMap.put(type, verCombox);
 			Set<String> verList = supportBrowser.get(type);
@@ -147,19 +146,41 @@ public class ServerUI extends JFrame
 			}
 			browserListPanel.add(verCombox);
 			verCombox.setName(type);
+			verCombox.setData(browser);
 			verCombox.addActionListener(new ActionListener()
 			{
 				
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					JComboBox<String> combox = (JComboBox<String>) e.getSource();
+					@SuppressWarnings("unchecked")
+                    JComboBox<String> combox = (JComboBox<String>) e.getSource();
 					String type = combox.getName();
 					String ver = combox.getSelectedItem().toString();
 					
 					driverInfoMap.get(type).setVersion(ver);
 				}
 			});
+			
+			//版本自动选择
+            String typeVer = BrowserVersionUtils.getMajorVersion(type);
+            if(StringUtils.isNotBlank(typeVer))
+            {
+                verCombox.setSelectedItem(typeVer);
+            }
+            else
+            {
+                typeVer = BrowserVersionUtils.getMajorVersion(browser.getAlias());
+                if(StringUtils.isNotBlank(typeVer))
+                {
+                    verCombox.setSelectedItem(typeVer);
+                }
+            }
+            
+            if(verCombox.getSelectedIndex() != -1)
+            {
+                typeCheckBox.setSelected(true);
+            }
 		}
 		
 		//role list
@@ -186,40 +207,7 @@ public class ServerUI extends JFrame
 				}
 				gridRoleBox.setEnabled(false);
 				
-				Map<String, String> driverMap = driverMapping.driverMap();
-				
-				for(DriverInfo driverInfo : driverInfoMap.values())
-				{
-					if(!driverInfo.isEnable())
-					{
-						continue;
-					}
-					
-					String name = driverInfo.getName();
-					String ver = driverInfo.getVersion();
-					
-					String url = driverMapping.getUrl(name, ver);
-					try
-					{
-						String localPath = new DriverDownloader().getLocalFilePath(new URL(url));
-						
-						String driver = driverMap.get(name);
-						System.getProperties().put(driver, localPath);
-					}
-					catch (IOException e1)
-					{
-						e1.printStackTrace();
-					}
-				}
-				
-				try
-				{
-					GridLauncherV3.main(new String[]{});
-				}
-				catch (Exception ex)
-				{
-					ex.printStackTrace();
-				}
+				AutoTestServer.startServer(driverInfoMap);
 			}
 		});
 		serverPanel.add(startBut);

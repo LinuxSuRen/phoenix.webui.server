@@ -96,5 +96,11 @@
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.surenpi</groupId>
+			<artifactId>com.surenpi.swing</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
